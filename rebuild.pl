@@ -26,8 +26,8 @@ while (<STDIN>) {
 
     unless (/^\d(.*?)\.$/) {
         # TODO: Anchor raw line to the line above it to keep "context"
-        $db{$context}{RAW} = () unless exists $db{$context}{RAW};
-        push @{ $db{$context}{RAW} }, $_;
+        $db{$context}{-1} = () unless exists $db{$context}{-1};
+        push @{ $db{$context}{-1} }, $_;
         debug(2, "Skipping raw line: $_");
         next;
     }
@@ -56,11 +56,22 @@ while (<STDIN>) {
 #print Dumper(\%fqdn);
 debug(1, "Have " . keys(%db) . " entries\nRebuilding...");
 
-for my $key (sort {$b cmp $a} keys %db) {
+# Sort keys
+my @stack;
+for (keys %db) {
+    my @temp = map { local $_ = $_; s/[^\d]+//; $_ } split /\./;
+    @temp = grep { $_ ne '' } @temp;
+    push @stack, \@temp;
+}
+
+for my $KA (sort { @$a <=> @$b || @$a[0] <=> @$b[0] } @stack) {
+    # I'm too lazy to do this properly
+    my $key = join('.', @{$KA}) . '.in-addr.arpa.';
+
     # For each context:
     print "\$ORIGIN $key\n";
-    for my $octet (sort keys %{ $db{$key} }) {
-        if ($octet eq 'RAW') {
+    for my $octet (sort { $a <=> $b || $a gt $b } keys %{ $db{$key} }) {
+        if ($octet == -1) {
             print $_ for (@{ $db{$key}{$octet} });
             next;
         }
