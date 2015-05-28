@@ -24,7 +24,7 @@ while (<STDIN>) {
             next;
     }
 
-    unless (/^\d(.*?)\.$/) {
+    unless (/^\d(.*?)\.\s*$/) {
         # TODO: Anchor raw line to the line above it to keep "context"
         $db{$context}{-1} = () unless exists $db{$context}{-1};
         push @{ $db{$context}{-1} }, $_;
