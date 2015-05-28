@@ -1,0 +1,15 @@
+$ORIGIN 10.in-addr.arpa.
+10     IN     SOA     self.example.com. root.example.com. (
+                              2015041400 ; Serial Revision
+                              10800
+                              3600
+                              604800
+                              86400 )
+      IN     NS     ns1.example.com.
+$ORIGIN 0.10.10.in-addr.arpa.
+5     IN     PTR     example1.example.com.
+6     IN     PTR     example2.example.com.
+$ORIGIN 1.10.10.in-addr.arpa.
+150     IN     PTR     host12.example.com.
+152     IN     PTR     host14.example.com.
+44 	IN 	PTR 	 machine1.useless.stupid.crap.lol.us.  
