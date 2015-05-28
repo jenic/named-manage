@@ -1,15 +1,26 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use Getopt::Long;
+use Pod::Usage;
 #use Data::Dumper;
-
-my (%db, %fqdn);
-my $context;
 
 sub isThing;
 sub debug;
 
-# Process Arguments
+my (%db, %fqdn);
+my ($context, $help, $man);
+my (@add, @del);
+
+GetOptions
+( 'add=s{1,}'   => \@add
+, 'del=s{1,}'   => \@del
+, 'help|?'      => \$help
+, 'man'         => \$man
+) or pod2usage(2);
+
+pod2usage(1) if $help;
+pod2usage(-exitval => 0, -verbose => 2) if $man;
 
 while (<STDIN>) {
     if (/^\$ORIGIN\s+(.*?)\s*$/) {
@@ -106,3 +117,51 @@ sub debug {
     my $date = sprintf "%02d:%02d:%02d", $h, $m, $s;
     warn "$date $msg", "\n";
 }
+
+__END__
+
+=head1 ptr-manage
+
+Manage named PTR files because apparently it's hard.
+
+=head1 SYNOPSIS
+
+ptr-manage
+[ --add 127.0.0.1=example1.example.com [ ... ] ]
+[ --del 127.0.0.1=example1.example.com [ ... ] ]
+|| [ --man | --help ]
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-help>
+
+Print a brief help message and exit
+
+=item B<-man>
+
+Prints POD documentation and exits
+
+=item B<-add>
+
+Add PTR records in B<IP>=B<HOST> fashion. Additional entries can be added
+separated by spaces. If the subnet does not exist it will be created
+automatically as a new ORIGIN line.
+
+=item B<-del>
+
+Just like B<-add> only delete the records instead of add them.
+
+=back
+
+=head1 DESCRIPTION
+
+B<ptr-manage> will read and write to STDIN/OUT while taking CLI arguments to
+add or delete entries from the generated text. It can also be used to clean up
+and sort existing databases whose maintainers were perhaps a little less than
+diligent.
+
+Part of the named-manage project.
+
+=cut
