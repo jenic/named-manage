@@ -97,6 +97,18 @@ for my $KA (sort { @$a <=> @$b || @$a[0] <=> @$b[0] } @stack) {
     }
 }
 
+sub addRecord {
+    my ($db_ref, $fq_ref, $context, $last, $name) = @_;
+    my %db = %{$db_ref};
+    my %fqdn = %{$fq_ref};
+
+    $db{$context}{$last} = {};
+    $db{$context}{$last}->{ZONE} = 'IN';
+    $db{$context}{$last}->{TYPE} = 'PTR';
+    $fqdn{$context}{$name} = $last;
+    $db{$context}{$last}->{PTR} = $name;
+}
+
 sub isThing {
     my ($context, $field, $href, $line) = @_;
     my %hash = %$href;
@@ -107,6 +119,16 @@ sub isThing {
     }
 
     return 0;
+}
+
+sub getParts {
+    my ($ip, $name) = split '=', @_;
+    my @octets = split /\./, reverse($ip);
+    my $last = shift @octets;
+    my $context = join('.', @octets) . '.in-addr.arpa.';
+    chomp($name);
+
+    return ($context, $last, $name);
 }
 
 sub debug {
